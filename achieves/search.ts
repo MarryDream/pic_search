@@ -2,7 +2,7 @@ import { InputParameter } from "@modules/command";
 import { formatRowMessage } from "#pic_search/utils/utils";
 import { sauceNAOSearch } from "#pic_search/utils/api";
 import { checkSauceNAOSearchStatus } from "#pic_search/types/check";
-import { keys } from "#pic_search/init";
+import { keys, config } from "#pic_search/init";
 
 enum ErrorMsg {
 	NOT_FOUNT = "未找到类似图片",
@@ -14,14 +14,18 @@ enum ErrorMsg {
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
 	const { message, message_type } = messageData;
 	
-	const recImages: any[] = message.filter( m => m.type === "image" );
+	let recImages: any[] = message.filter( m => m.type === "image" );
 	if ( !recImages.length ) {
 		await sendMessage( ErrorMsg.EMPTY );
 		return;
 	}
 	
 	if ( recImages.length > 3 ) {
-		await sendMessage( ErrorMsg.OVERFLOW )
+		await sendMessage( ErrorMsg.OVERFLOW );
+	}
+	
+	if ( recImages.length === 0 ) {
+		await sendMessage( ErrorMsg.NOT_FOUNT );
 	}
 	
 	const rowMessageArr: string[] = [];
@@ -31,11 +35,13 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 		rowMessageArr.push( " " );
 	}
 	
+	!config.multiple && ( recImages.length = 1 );
+	
 	let imgIndex = 0;
 	
 	for ( const img of recImages ) {
 		imgIndex++
-		rowMessageArr.push( `---第${ imgIndex }张搜索结果---` );
+		config.multiple && rowMessageArr.push( `---第${ imgIndex }张搜索结果---` );
 		const { url } = img.data;
 		let api_key = keys.getKey();
 		const result = await sauceNAOSearch( { api_key, url } );
