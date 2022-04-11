@@ -1,4 +1,5 @@
 import { RefreshCatch } from "@modules/management/refresh";
+import { keys } from "#pic_search/init";
 
 export interface ISearchConfig {
 	tip: string
@@ -27,6 +28,7 @@ export default class SearchConfig {
 		try {
 			this.multiple = config.multiple;
 			this.searchKeys = config.searchKeys;
+			keys.setKey(config.searchKeys);
 			return `${ SearchConfig.configName }.yml 重新加载完毕`;
 		} catch ( error ) {
 			throw <RefreshCatch>{
