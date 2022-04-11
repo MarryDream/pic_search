@@ -36,12 +36,21 @@ searchKeys:
 
 ## 食用示例
 
-使用 `#pic_search` 跟随图片发送，默认允许附带多张图片，最多三张
+使用 `#pic_search` 跟随 **图片** 或 **@用户(将会把目标头像当作待搜索图片)** 发送，默认允许附带多张图片，最多三张
 
 <div align="center">
     <img src="https://github.com/MarryDream/pic_search/blob/master/doc/multiple_search.png?raw=true" width="250" alt="多图搜索示例" />
-    <p style="color: #666; margin: 0">[多图搜索示例]</p>
+    <br />
+    <font color="#666">[多图搜索示例]</font>
 </div>
+<br />
+<div align="center">
+    <img src="https://github.com/MarryDream/pic_search/blob/master/doc/at_search.png?raw=true" width="250" alt="多图搜索示例" /> 
+    <br />
+    <font color="#666">[@搜索头像示例]</font>
+</div>
+
+~~头像大都是被裁剪过的，大部分能搜到才怪，纯数没锤子用的功能，看个乐呵就好~~
 
 > 注：前置符号 # 与指令关键字 pic_search 均可修改，详见 [Adachi-BOT 说明文档][3]  
 > 查询到的图片相似度小于 80% 将会直接提示 “未找到类似图片”  
