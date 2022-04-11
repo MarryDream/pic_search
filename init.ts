@@ -1,7 +1,7 @@
-import bot from "ROOT"
+import bot from "ROOT";
 import { BOT } from "@modules/bot";
 import SearchConfig from "#pic_search/module/config";
-import SearchKey from "#pic_search/utils/keys";
+import SearchKey from "#pic_search/module/keys";
 import { PluginSetting } from "@modules/plugin";
 import { OrderConfig } from "@modules/command";
 import FileManagement from "@modules/file";

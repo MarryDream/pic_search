@@ -1,7 +1,8 @@
 import { InputParameter } from "@modules/command";
 import { formatRowMessage } from "#pic_search/utils/utils";
-import { sauceNAOSearch, checkSauceNAOSearchStatus } from "#pic_search/utils/api";
-import { keys } from "#pic_search/init"
+import { sauceNAOSearch } from "#pic_search/utils/api";
+import { checkSauceNAOSearchStatus } from "#pic_search/types/check";
+import { keys } from "#pic_search/init";
 
 enum ErrorMsg {
 	NOT_FOUNT = "未找到类似图片",
