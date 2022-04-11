@@ -14,17 +14,18 @@ enum ErrorMsg {
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
 	const { message, message_type } = messageData;
 	
-	let recImages: any[] = message.filter( m => m.type === "image" );
-	if ( !recImages.length ) {
+	const recMessage: any[] = message.filter( m => m.type === "image" || m.type === "at" );
+	
+	if ( !recMessage.length ) {
 		await sendMessage( ErrorMsg.EMPTY );
 		return;
 	}
 	
-	if ( recImages.length > 3 ) {
+	if ( recMessage.length > 3 ) {
 		await sendMessage( ErrorMsg.OVERFLOW );
 	}
 	
-	if ( recImages.length === 0 ) {
+	if ( recMessage.length === 0 ) {
 		await sendMessage( ErrorMsg.NOT_FOUNT );
 	}
 	
@@ -35,14 +36,19 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 		rowMessageArr.push( " " );
 	}
 	
-	!config.multiple && ( recImages.length = 1 );
+	!config.multiple && ( recMessage.length = 1 );
 	
 	let imgIndex = 0;
 	
-	for ( const img of recImages ) {
+	for ( const rec of recMessage ) {
 		imgIndex++
 		config.multiple && rowMessageArr.push( `---第${ imgIndex }张搜索结果---` );
-		const { url } = img.data;
+		let url: string;
+		if ( rec.type === "image" ) {
+			url = rec.data.url;
+		} else {
+			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ rec.data.qq }`;
+		}
 		let api_key = keys.getKey();
 		const result = await sauceNAOSearch( { api_key, url } );
 		
