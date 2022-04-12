@@ -5,12 +5,14 @@ export interface ISearchConfig {
 	tip: string
 	at: boolean
 	multiple: boolean
+	similarity: number
 	searchKeys: string[]
 }
 
 export default class SearchConfig {
 	public at: boolean;
 	public multiple: boolean;
+	public similarity: number;
 	public searchKeys: string[];
 	
 	public static configName = "pic_search";
@@ -19,12 +21,14 @@ export default class SearchConfig {
 		tip: "搜图插件配置文件，searchKeys必填，可填写多个",
 		at: true,
 		multiple: true,
+		similarity: 70,
 		searchKeys: [ "searchKeyA", "searchKeyB" ]
 	}
 	
 	constructor( config: ISearchConfig ) {
 		this.at = config.at;
 		this.multiple = config.multiple;
+		this.similarity = config.similarity;
 		this.searchKeys = config.searchKeys;
 	}
 	
@@ -32,6 +36,7 @@ export default class SearchConfig {
 		try {
 			this.at = config.at;
 			this.multiple = config.multiple;
+			this.similarity = config.similarity;
 			this.searchKeys = config.searchKeys;
 			keys.setKey( config.searchKeys );
 			return `${ SearchConfig.configName }.yml 重新加载完毕`;

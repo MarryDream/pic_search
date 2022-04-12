@@ -99,7 +99,7 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 		}
 		
 		/* 获取前两个相似度匹配的数据 */
-		const gottenResult = result.results.filter( r => Number( r.header.similarity ) >= 80 ).slice( 0, 2 );
+		const gottenResult = result.results.filter( r => Number( r.header.similarity ) >= config.similarity ).slice( 0, 2 );
 		
 		if ( !gottenResult.length ) {
 			rowMessageArr.push( ErrorMsg.NOT_FOUNT );
@@ -118,7 +118,7 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 		/* 生成返回数据对象 */
 		for ( const { data } of gottenResult ) {
 			for ( const k in keyToDiy ) {
-				setMessageData( data, k, keyToDiy[k] )
+				setMessageData( data, k, keyToDiy[k] );
 			}
 		}
 		

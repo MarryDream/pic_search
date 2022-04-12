@@ -33,6 +33,7 @@ git clone https://github.com/MarryDream/pic_search.git
 tip: 搜图插件配置文件，searchKeys必填，可填写多个
 at: true
 multiple: true
+similarity: 70
 searchKeys:
   - searchKeyA
   - searchKeyB
@@ -41,6 +42,7 @@ searchKeys:
 - tip: 不用管，删了都行
 - at: 是否开启 @用户 查询目标头像功能
 - multiple: true（多图搜索，上限三张）false（单图搜索）
+- similarity: 相似度，低于该值的结果将不会显示（注意：请不要将该值设置过低，否则结果将会非常不准确）
 - searchKeys：必填，搜图必备api key，允许添加多个 key，每一个 key 按照格式换行以 ` - ` 开头
 
 修改 `pic_search.yml` 后重启 bot 或执行 Adachi-BOT 的 `refresh` 重载配置文件指令生效
