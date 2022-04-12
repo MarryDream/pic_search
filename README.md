@@ -8,6 +8,7 @@
 - 移除查询返回数据中的链接
 - 丰富查询数据字段
 - 修复部分图片查询数据不显示问题
+- 添加 **相似度** 配置项
 
 2022.04.11 相关更新：
 - 修复 #refresh 无法重载 searchKey 问题
@@ -24,6 +25,16 @@ git clone https://github.com/MarryDream/pic_search.git
 或通过本项目仓库左上角 `code -> Download.zip` 下载压缩包，解压至 `Adachi-BOT/src/plugins` 目录内
 
 > 注意：若使用下载压缩包方式，请务必删除解压后目录名字中的 `-master`，否则插件无法启动
+
+## 更新方法
+
+进入 `Adachi-BOT/src/plugins/pic_search` 目录下，执行以下命令即可
+
+```bash
+git pull
+```
+
+当然你也可以直接 下载本项目压缩包 整包替换。
 
 ## 食用方法
 
