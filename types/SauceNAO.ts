@@ -6,13 +6,16 @@ export interface ISauceNAOResult {
 	data: {
 		title?: string
 		pixiv_id?: number
+		tweet_id?: number
 		danbooru_id?: number
 		yandere_id?: number
 		gelbooru_id?: number
 		member_name?: string
 		member_id?: number
+		twitter_user_id?: number
+		twitter_user_handle?: string
 		creator?: string
-		source?: string
+		created_at?: string
 	}
 }
 
