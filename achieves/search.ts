@@ -5,8 +5,10 @@ import { checkSauceNAOSearchStatus } from "#pic_search/types/check";
 import { keys, config } from "#pic_search/init";
 
 enum ErrorMsg {
+	CANNOT_AT = "未开启 at 查询头像功能",
 	NOT_FOUNT = "未找到类似图片",
 	EMPTY = "请在指令后跟随图片",
+	EMPTY_AT = "请在指令后跟随图片或@用户",
 	OVERFLOW = "不得超过三张图片",
 	ERROR_MESSAGE = "识图api请求出错"
 }
@@ -14,19 +16,23 @@ enum ErrorMsg {
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
 	const { message, message_type } = messageData;
 	
-	const recMessage: any[] = message.filter( m => m.type === "image" || m.type === "at" );
+	const recImage: any[] = message.filter( m => m.type === "image" );
+	const recAt: any[] = message.filter( m => m.type === "at" );
+	
+	const recMessage: any[] = config.at ? [ ...recImage, ...recAt ] : [ ...recImage ];
 	
 	if ( !recMessage.length ) {
-		await sendMessage( ErrorMsg.EMPTY );
+		if ( config.at ) {
+			await sendMessage( ErrorMsg.EMPTY_AT );
+		} else {
+			await sendMessage( recAt.length ? ErrorMsg.CANNOT_AT : ErrorMsg.EMPTY );
+		}
 		return;
 	}
 	
 	if ( recMessage.length > 3 ) {
 		await sendMessage( ErrorMsg.OVERFLOW );
-	}
-	
-	if ( recMessage.length === 0 ) {
-		await sendMessage( ErrorMsg.NOT_FOUNT );
+		return;
 	}
 	
 	const rowMessageArr: string[] = [];

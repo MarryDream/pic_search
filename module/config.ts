@@ -3,11 +3,13 @@ import { keys } from "#pic_search/init";
 
 export interface ISearchConfig {
 	tip: string
+	at: boolean
 	multiple: boolean
 	searchKeys: string[]
 }
 
 export default class SearchConfig {
+	public at: boolean;
 	public multiple: boolean;
 	public searchKeys: string[];
 	
@@ -15,20 +17,23 @@ export default class SearchConfig {
 	
 	public static init = {
 		tip: "搜图插件配置文件，searchKeys必填，可填写多个",
+		at: true,
 		multiple: true,
 		searchKeys: [ "searchKeyA", "searchKeyB" ]
 	}
 	
 	constructor( config: ISearchConfig ) {
+		this.at = config.at;
 		this.multiple = config.multiple;
 		this.searchKeys = config.searchKeys;
 	}
 	
 	public async refresh( config: ISearchConfig ): Promise<string> {
 		try {
+			this.at = config.at;
 			this.multiple = config.multiple;
 			this.searchKeys = config.searchKeys;
-			keys.setKey(config.searchKeys);
+			keys.setKey( config.searchKeys );
 			return `${ SearchConfig.configName }.yml 重新加载完毕`;
 		} catch ( error ) {
 			throw <RefreshCatch>{
