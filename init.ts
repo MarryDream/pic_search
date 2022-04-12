@@ -34,7 +34,19 @@ function loadConfig( file: FileManagement ): SearchConfig {
 	
 	const config = file.loadYAML( SearchConfig.configName );
 	
-	return new SearchConfig( config )
+	const keysNum = ( o: any ) => Object.keys( o ).length;
+	
+	/* 自动填充当前配置缺少的字段 */
+	if ( keysNum( initConfig ) !== keysNum( config ) ) {
+		const c: any = {};
+		for ( const cKey of Object.keys( initConfig ) ) {
+			c[cKey] = config[cKey] || initConfig[cKey];
+		}
+		file.writeYAML( SearchConfig.configName, c );
+		return new SearchConfig( c );
+	}
+	
+	return new SearchConfig( config );
 }
 
 
