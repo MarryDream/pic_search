@@ -16,7 +16,10 @@ enum ErrorMsg {
 
 const keyToDiy = {
 	title: "标题",
+	eng_name: "标题（英）",
+	jp_name: "标题（日）",
 	tweet_id: "twitter_id",
+	pixiv_id: "pixiv_id",
 	yandere_id: "yandere_id",
 	gelbooru_id: "gelbooru_id",
 	danbooru_id: "danbooru_id",

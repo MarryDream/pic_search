@@ -5,6 +5,8 @@ export interface ISauceNAOResult {
 	},
 	data: {
 		title?: string
+		eng_name?: string
+		jp_name?: string
 		pixiv_id?: number
 		tweet_id?: number
 		danbooru_id?: number

@@ -13,9 +13,15 @@ export function sauceNAOSearch( params: IParams | undefined ): Promise<ISauceNAO
 		numres: 3,
 		...params
 	} );
-	return new Promise( ( resolve ) => {
+	return new Promise( ( resolve, reject ) => {
 		fetch( url ).then( async ( result: Response ) => {
-			resolve( await result.json() );
+			if ( result.ok ) {
+				const res = await result.json();
+				resolve( res );
+			}
+			reject( new Error( "ERROR" ) );
+		} ).catch( ( err: Error ) => {
+			reject( err );
 		} )
 	} )
 }
