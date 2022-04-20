@@ -1,3 +1,4 @@
+import bot from "ROOT";
 import { InputParameter } from "@modules/command";
 import { formatRowMessage } from "#pic_search/utils/utils";
 import { sauceNAOSearch } from "#pic_search/utils/api";
@@ -56,7 +57,7 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 	const rowMessageArr: string[] = [];
 	
 	/* 群聊@换行处理 */
-	if ( message_type === "group" ) {
+	if ( message_type === "group" && bot.config.atUser ) {
 		rowMessageArr.push( " " );
 	}
 	
