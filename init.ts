@@ -14,7 +14,7 @@ const search: OrderConfig = {
 	cmdKey: "marry-dream.pic-search",
 	desc: [ "搜图", "[图片]" ],
 	headers: [ "pic_search" ],
-	regexps: [ ".+" ],
+	regexps: [ "[\\w\\W]+" ],
 	main: "achieves/search",
 	detail: "附带图片发送，使用SauceNAO搜索，可同时搜索多张，上限3张\n" +
 		"支持修改配置文件multiple字段，更改单/多张搜索模式"
