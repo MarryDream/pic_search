@@ -29,7 +29,11 @@ const keyToDiy = {
 	member_name: "作者(pixiv)",
 	twitter_user_id: "作者id(推特)",
 	twitter_user_handle: "作者用户名(推特)",
-	created_at: "发布日期"
+	created_at: "发布日期",
+	user_id: "作者id（pixiv Fanbox）",
+	user_name: "作者（pixiv Fanbox）",
+	publish: "发布日期（pixiv Fanbox）",
+	service_name: "发布地址"
 }
 
 export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
