@@ -12,7 +12,8 @@ enum ErrorMsg {
 	EMPTY = "请在指令后跟随图片",
 	EMPTY_AT = "请在指令后跟随图片或@用户",
 	OVERFLOW = "不得超过三张图片",
-	ERROR_MESSAGE = "识图api请求出错"
+	ERROR_MESSAGE = "识图api请求出错",
+	INCOMPLETE_RESULTS = "*服务端异常，结果可能不完全"
 }
 
 const keyToDiy = {
@@ -36,7 +37,7 @@ const keyToDiy = {
 	service_name: "发布地址"
 }
 
-export async function main( { sendMessage, messageData }: InputParameter ): Promise<void> {
+export async function main( { sendMessage, messageData, logger }: InputParameter ): Promise<void> {
 	const { message, message_type } = messageData;
 	
 	const recImage: any[] = message.filter( m => m.type === "image" );
@@ -84,7 +85,8 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 		let result: ISauceNAOResponseSuccess | ISauceNAOResponseError;
 		try {
 			result = await sauceNAOSearch( { api_key, url } );
-		} catch ( e ) {
+		} catch ( error ) {
+			logger.error( error );
 			rowMessageArr.push( ErrorMsg.ERROR_MESSAGE );
 			continue;
 		}
@@ -101,6 +103,11 @@ export async function main( { sendMessage, messageData }: InputParameter ): Prom
 		/* keys次数用完时，切换 */
 		if ( result.header.long_remaining === 0 ) {
 			keys.increaseIndex();
+		}
+		
+		/* 当状态为3时，查询结果不完全 */
+		if ( result.header.status === 3 ) {
+			rowMessageArr.push( ErrorMsg.INCOMPLETE_RESULTS );
 		}
 		
 		/* 获取前两个相似度匹配的数据 */
