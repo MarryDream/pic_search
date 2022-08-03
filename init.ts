@@ -59,6 +59,11 @@ export async function init( { file }: BOT ): Promise<PluginSetting> {
 	
 	return {
 		pluginName: "pic_search",
-		cfgList: [ search ]
+		cfgList: [ search ],
+		repo: {
+			owner: "MarryDream",
+			repoName: "pic_search",
+			ref: "master"
+		}
 	};
 }
