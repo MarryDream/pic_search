@@ -6,6 +6,7 @@
 2022.10.08 相关更新
 - 支持回复消息方式搜图
 - 修复开启at时群聊多余空行
+- 适配主项目的别名更新指令
 
 2022.08.03 相关更新
 - 适配主项目热更新指令
@@ -64,8 +65,10 @@ at: true
 multiple: true
 similarity: 70
 searchKeys:
-  - searchKeyA
-  - searchKeyB
+    - searchKeyA
+    - searchKeyB
+aliases:
+    - 搜图
 ```
 
 - tip: 不用管，删了都行
@@ -73,6 +76,7 @@ searchKeys:
 - multiple: true（多图搜索，上限三张）false（单图搜索）
 - similarity: 相似度，低于该值的结果将不会显示（注意：请不要将该值设置过低，否则结果将会非常不准确）
 - searchKeys：必填，搜图必备api key，允许添加多个 key，每一个 key 按照格式换行以 ` - ` 开头
+- aliases：适配主项目 `upgrade_plugins`更新插件指令的别名更新，可使用在此配置的别名替换插件名称进行更新。
 
 修改 `pic_search.yml` 后重启 bot 或执行 Adachi-BOT 的 `refresh` 重载配置文件指令生效
 

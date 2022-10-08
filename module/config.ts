@@ -1,12 +1,14 @@
 import { RefreshCatch } from "@modules/management/refresh";
 import { keys } from "#pic_search/init";
+import { PluginAlias } from "@modules/plugin";
 
 export interface ISearchConfig {
-	tip: string
-	at: boolean
-	multiple: boolean
-	similarity: number
-	searchKeys: string[]
+	tip: string;
+	at: boolean;
+	multiple: boolean;
+	similarity: number;
+	searchKeys: string[];
+	aliases: string[];
 }
 
 export default class SearchConfig {
@@ -14,6 +16,7 @@ export default class SearchConfig {
 	public multiple: boolean;
 	public similarity: number;
 	public searchKeys: string[];
+	public aliases: string[];
 	
 	public static configName = "pic_search";
 	
@@ -22,7 +25,8 @@ export default class SearchConfig {
 		at: true,
 		multiple: true,
 		similarity: 70,
-		searchKeys: [ "searchKeyA", "searchKeyB" ]
+		searchKeys: [ "searchKeyA", "searchKeyB" ],
+		aliases: [ "搜图" ]
 	}
 	
 	constructor( config: ISearchConfig ) {
@@ -30,6 +34,7 @@ export default class SearchConfig {
 		this.multiple = config.multiple;
 		this.similarity = config.similarity;
 		this.searchKeys = config.searchKeys;
+		this.aliases = config.aliases;
 	}
 	
 	public async refresh( config: ISearchConfig ): Promise<string> {
@@ -39,6 +44,15 @@ export default class SearchConfig {
 			this.similarity = config.similarity;
 			this.searchKeys = config.searchKeys;
 			keys.setKey( config.searchKeys );
+			
+			for ( const alias of this.aliases ) {
+				delete PluginAlias[alias];
+			}
+			this.aliases = config.aliases;
+			for ( const alias of this.aliases ) {
+				PluginAlias[alias] = "pic_search";
+			}
+			
 			return `${ SearchConfig.configName }.yml 重新加载完毕`;
 		} catch ( error ) {
 			throw <RefreshCatch>{

@@ -60,6 +60,7 @@ export async function init( { file }: BOT ): Promise<PluginSetting> {
 	
 	return {
 		pluginName: "pic_search",
+		aliases: config.aliases,
 		cfgList: [ search ],
 		repo: {
 			owner: "MarryDream",
