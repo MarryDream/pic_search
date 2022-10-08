@@ -10,11 +10,3 @@ export function formatGetURL( url: string, params: IParams | undefined ): string
 	}
 	return `${ url }?${ paramsStr.substring( 1 ) }`
 }
-
-export function formatRowMessage( message: string[] ) {
-	let rowMessage = "";
-	for ( const m of message ) {
-		rowMessage += `\n${ m }`;
-	}
-	return rowMessage.substring( 1 );
-}

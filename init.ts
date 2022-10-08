@@ -12,12 +12,13 @@ export let keys: SearchKey
 const search: OrderConfig = {
 	type: "order",
 	cmdKey: "marry-dream.pic-search",
-	desc: [ "搜图", "[图片]" ],
+	desc: [ "搜图", "(图片)" ],
 	headers: [ "pic_search" ],
-	regexps: [ "[\\w\\W]+" ],
+	regexps: [ "[\\w\\W]*" ],
 	main: "achieves/search",
 	detail: "附带图片发送，使用SauceNAO搜索，可同时搜索多张，上限3张\n" +
-		"支持修改配置文件multiple字段，更改单/多张搜索模式"
+		"支持修改配置文件multiple字段，更改单/多张搜索模式\n" +
+		"支持回复图片进行查询，当为回复消息时，at搜头像不可用"
 };
 
 

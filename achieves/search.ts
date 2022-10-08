@@ -1,10 +1,10 @@
 import bot from "ROOT";
 import { InputParameter } from "@modules/command";
-import { formatRowMessage } from "#pic_search/utils/utils";
 import { sauceNAOSearch } from "#pic_search/utils/api";
 import { checkSauceNAOSearchStatus } from "#pic_search/types/check";
 import { keys, config } from "#pic_search/init";
 import { ISauceNAOResponseError, ISauceNAOResponseSuccess, ISauceNAOResult } from "#pic_search/types/SauceNAO";
+import { ReplyElem, AtElem, ImgPttElem, Ret, MessageElem } from "oicq";
 
 enum ErrorMsg {
 	CANNOT_AT = "未开启 at 查询头像功能",
@@ -13,7 +13,9 @@ enum ErrorMsg {
 	EMPTY_AT = "请在指令后跟随图片或@用户",
 	OVERFLOW = "不得超过三张图片",
 	ERROR_MESSAGE = "识图api请求出错",
-	INCOMPLETE_RESULTS = "*服务端异常，结果可能不完全"
+	REPLY_ERROR = "获取引用信息出错：",
+	INCOMPLETE_RESULTS = "*服务端异常，结果可能不完全",
+	REPLY_ERROR_RESULTS = "*引用消息获取出错，请重试"
 }
 
 const keyToDiy = {
@@ -37,16 +39,39 @@ const keyToDiy = {
 	service_name: "发布地址"
 }
 
-export async function main( { sendMessage, messageData, logger }: InputParameter ): Promise<void> {
+export async function main( { sendMessage, messageData, logger, client }: InputParameter ): Promise<void> {
 	const { message, message_type } = messageData;
 	
-	const recImage: any[] = message.filter( m => m.type === "image" );
-	const recAt: any[] = message.filter( m => m.type === "at" );
+	const recReplyImage: ImgPttElem[] = [];
 	
-	const recMessage: any[] = config.at ? [ ...recImage, ...recAt ] : [ ...recImage ];
+	const recReply = <ReplyElem[]>message.filter( m => m.type === "reply" );
+	const hasReply: boolean = !!recReply.length;
+	
+	let replyError: boolean = false; // 获取回复消息是否出错
+	/* 尝试获取回复信息中的图片 */
+	if ( hasReply ) {
+		const { data: { id } } = recReply[0];
+		const { retcode, error, data } = await client.getMsg( id );
+		if ( retcode === 0 ) {
+			recReplyImage.push( ...<ImgPttElem[]>data!.message.filter( m => m.type === "image" ) );
+		} else {
+			replyError = true;
+			logger.error( ErrorMsg.REPLY_ERROR + error?.message || "" );
+		}
+	}
+	
+	const recImage = <ImgPttElem[]>message.filter( m => m.type === "image" );
+	const recAt = <AtElem[]>message.filter( m => m.type === "at" );
+	
+	const recMessage: Array<ImgPttElem | AtElem> = [ ...recReplyImage, ...recImage ];
+	
+	/* 当开启@搜头像且不存在回复消息时结果中包含头像，否则不包含 */
+	if ( config.at && !hasReply ) {
+		recMessage.push( ...recAt );
+	}
 	
 	if ( !recMessage.length ) {
-		if ( config.at ) {
+		if ( config.at && !hasReply ) {
 			await sendMessage( ErrorMsg.EMPTY_AT );
 		} else {
 			await sendMessage( recAt.length ? ErrorMsg.CANNOT_AT : ErrorMsg.EMPTY );
@@ -61,11 +86,6 @@ export async function main( { sendMessage, messageData, logger }: InputParameter
 	
 	const rowMessageArr: string[] = [];
 	
-	/* 群聊@换行处理 */
-	if ( message_type === "group" && bot.config.atUser ) {
-		rowMessageArr.push( " " );
-	}
-	
 	!config.multiple && ( recMessage.length = 1 );
 	
 	let imgIndex = 0;
@@ -75,9 +95,9 @@ export async function main( { sendMessage, messageData, logger }: InputParameter
 		config.multiple && rowMessageArr.push( `---第${ imgIndex }张搜索结果---` );
 		let url: string;
 		if ( rec.type === "image" ) {
-			url = rec.data.url;
+			url = <string>rec.data.url;
 		} else {
-			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ rec.data.qq }`;
+			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ ( <AtElem>rec ).data.qq }`;
 		}
 		
 		let api_key = keys.getKey();
@@ -103,6 +123,11 @@ export async function main( { sendMessage, messageData, logger }: InputParameter
 		/* keys次数用完时，切换 */
 		if ( result.header.long_remaining === 0 ) {
 			keys.increaseIndex();
+		}
+		
+		/* 当引用消息获取出错时，提示 */
+		if ( replyError ) {
+			rowMessageArr.push( ErrorMsg.REPLY_ERROR_RESULTS );
 		}
 		
 		/* 当状态为3时，查询结果不完全 */
@@ -139,6 +164,5 @@ export async function main( { sendMessage, messageData, logger }: InputParameter
 			rowMessageArr.push( `${ sKey }：${ sendMessageObj[sKey] }` );
 		}
 	}
-	
-	await sendMessage( formatRowMessage( rowMessageArr ) );
+	await sendMessage( rowMessageArr.join( "\n" ) );
 }

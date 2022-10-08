@@ -3,6 +3,10 @@
 本项目为 [Adachi-BOT][1] 的衍生插件，基于 [SauceNAO][2] 接口实现的qq机器人搜图功能。
 
 ## 更新日志
+2022.10.08 相关更新
+- 支持回复消息方式搜图
+- 修复开启at时群聊多余空行
+
 2022.08.03 相关更新
 - 适配主项目热更新指令
 
@@ -76,7 +80,7 @@ searchKeys:
 
 ## 食用示例
 
-使用 `#pic_search` 跟随 **图片** 或 **@用户(将会把目标头像当作待搜索图片)** 发送，默认允许附带多张图片，最多三张
+使用 `#pic_search` 跟随 **图片** 或 **@用户(将会把目标头像当作待搜索图片)** 或**回复包含图片的消息** 发送，默认允许附带多张图片，最多三张
 
 <div align="center">
     <img src="https://github.com/MarryDream/pic_search/blob/master/doc/multiple_search.png?raw=true" width="250" alt="多图搜索示例" />
@@ -85,11 +89,16 @@ searchKeys:
 </div>
 <br />
 <div align="center">
-    <img src="https://github.com/MarryDream/pic_search/blob/master/doc/at_search.png?raw=true" width="250" alt="多图搜索示例" /> 
+    <img src="https://github.com/MarryDream/pic_search/blob/master/doc/reply_search.png?raw=true" width="250" alt="回复搜索示例" />
+    <br />
+    <font color="#666">[回复搜索示例]</font>
+</div>
+<br />
+<div align="center">
+    <img src="https://github.com/MarryDream/pic_search/blob/master/doc/at_search.png?raw=true" width="250" alt="@搜索头像示例" /> 
     <br />
     <font color="#666">[@搜索头像示例]</font>
 </div>
-
 ~~头像大都是被裁剪过的，大部分能搜到才怪，纯数没锤子用的功能，看个乐呵就好~~
 
 > 注：前置符号 # 与指令关键字 pic_search 均可修改，详见 [Adachi-BOT 说明文档][3]  
