@@ -1,6 +1,7 @@
 # pic_search
 
 本项目为 [Adachi-BOT][1] 的衍生插件，基于 [SauceNAO][2] 接口实现的qq机器人搜图功能。
+This project is a submodule for Adachi-BOT, it offers the search by image function as a QQ chat bot through SauceNAO.
 
 ## 更新日志
 2022.10.08 相关更新
@@ -45,6 +46,15 @@ git clone https://github.com/MarryDream/pic_search.git
 
 > 注意：若使用下载压缩包方式，请务必删除解压后目录名字中的 `-master`，否则插件无法启动
 
+## Installment
+enter `Adachi-BOT/src/plugins` and execute:
+```bash
+git clone https://github.com/MarryDream/pic_search.git
+```
+
+Or use  `code -> Download.zip` on this github website to download the zip and unzip it under `Adachi-BOT/src/plugins`
+>Attention: If you choose this method, then you must delete `-master` in the directory after you unzip it, or else this module won't work.
+
 ## 更新方法
 
 进入 `Adachi-BOT/src/plugins/pic_search` 目录下，执行以下命令即可
@@ -54,6 +64,15 @@ git pull
 ```
 
 当然你也可以直接 下载本项目压缩包 整包替换。
+
+## How to Update
+
+enter the directory `Adachi-BOT/src/plugins/pic_search` and execute: 
+```bash
+git pull
+```
+
+Or you can download the whole zip file and replace the old one with it.
 
 ## 食用方法
 
@@ -81,6 +100,28 @@ aliases:
 修改 `pic_search.yml` 后重启 bot 或执行 Adachi-BOT 的 `refresh` 重载配置文件指令生效
 
 你可以选择自行创建该文件，或先启动一次 bot 自动创建该配置文件后再前去修改，修改后重载配置文件
+
+## How to Use
+
+The initial run will create a configuration file `pic_search.yml` under the directory  `Adachi-BOT/config` with the following initial values.
+
+```yaml
+tip: 搜图插件配置文件，searchKeys必填，可填写多个
+at: true
+multiple: true
+similarity: 70
+searchKeys:
+    - searchKeyA
+    - searchKeyB
+aliases:
+    - 搜图
+```
+tip: Doesn't really matter, you can delete it if you want
+at: Allowing search for user avatar
+multiple: True (search by at most 3 pictures) false (search by single picture only)
+similarity: Results lower than this value will not be displayed (don't set it too low or else it will be very inaccurate)
+searchKeys: Must be filled since api key is required to search by image. Multiple keys can be inserted, make sure to format it right by starting with ` - ` at each line
+aliases: Adapts with the main project's `upgrade_plugins` to update plugins.
 
 ## 食用示例
 
