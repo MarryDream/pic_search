@@ -1,10 +1,10 @@
-import bot from "ROOT";
 import { InputParameter } from "@modules/command";
 import { sauceNAOSearch } from "#pic_search/utils/api";
 import { checkSauceNAOSearchStatus } from "#pic_search/types/check";
 import { keys, config } from "#pic_search/init";
 import { ISauceNAOResponseError, ISauceNAOResponseSuccess, ISauceNAOResult } from "#pic_search/types/SauceNAO";
-import { ReplyElem, AtElem, ImgPttElem, Ret, MessageElem } from "oicq";
+import { Quotable, AtElem, ImageElem, Message, Group, User, GroupMessage, PrivateMessage } from "icqq";
+import { isGroupMessage } from "@modules/message";
 
 enum ErrorMsg {
 	CANNOT_AT = "未开启 at 查询头像功能",
@@ -40,30 +40,38 @@ const keyToDiy = {
 }
 
 export async function main( { sendMessage, messageData, logger, client }: InputParameter ): Promise<void> {
-	const { message, message_type } = messageData;
+	const { message, source } = messageData;
 	
-	const recReplyImage: ImgPttElem[] = [];
-	
-	const recReply = <ReplyElem[]>message.filter( m => m.type === "reply" );
-	const hasReply: boolean = !!recReply.length;
+	const hasReply: boolean = !!source;
+	const recReplyImage: ImageElem[] = [];
 	
 	let replyError: boolean = false; // 获取回复消息是否出错
 	/* 尝试获取回复信息中的图片 */
-	if ( hasReply ) {
-		const { data: { id } } = recReply[0];
-		const { retcode, error, data } = await client.getMsg( id );
-		if ( retcode === 0 ) {
-			recReplyImage.push( ...<ImgPttElem[]>data!.message.filter( m => m.type === "image" ) );
-		} else {
+	if ( source ) {
+		try {
+			let data: GroupMessage[] | PrivateMessage[] = [];
+			if ( isGroupMessage( messageData ) ) {
+				const group: Group = client.pickGroup( messageData.group_id );
+				data = await group.getChatHistory( source.seq, 1 );
+			} else {
+				const user: User = client.pickUser( source.user_id );
+				data = await user.getChatHistory( source.time, 1 );
+			}
+			
+			if ( data.length === 0 ) {
+				throw new Error( "未获取到引用消息" );
+			}
+			recReplyImage.push( ...<ImageElem[]>data.map( ( msg: GroupMessage | PrivateMessage ) => msg.message[0] ).filter( m => m.type === "image" ) );
+		} catch ( error ) {
 			replyError = true;
 			logger.error( ErrorMsg.REPLY_ERROR + error?.message || "" );
 		}
 	}
 	
-	const recImage = <ImgPttElem[]>message.filter( m => m.type === "image" );
+	const recImage = <ImageElem[]>message.filter( m => m.type === "image" );
 	const recAt = <AtElem[]>message.filter( m => m.type === "at" );
 	
-	const recMessage: Array<ImgPttElem | AtElem> = [ ...recReplyImage, ...recImage ];
+	const recMessage: Array<ImageElem | AtElem> = [ ...recReplyImage, ...recImage ];
 	
 	/* 当开启@搜头像且不存在回复消息时结果中包含头像，否则不包含 */
 	if ( config.at && !hasReply ) {
@@ -95,9 +103,9 @@ export async function main( { sendMessage, messageData, logger, client }: InputP
 		config.multiple && rowMessageArr.push( `---第${ imgIndex }张搜索结果---` );
 		let url: string;
 		if ( rec.type === "image" ) {
-			url = <string>rec.data.url;
+			url = <string>rec.url;
 		} else {
-			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ ( <AtElem>rec ).data.qq }`;
+			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ ( <AtElem>rec ).qq }`;
 		}
 		
 		let api_key = keys.getKey();
