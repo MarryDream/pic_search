@@ -4,6 +4,9 @@
 This project is a submodule for Adachi-BOT, it offers the search by image function as a QQ chat bot through SauceNAO.
 
 ## 更新日志
+2023.05.13 相关更新
+- 修复引用回复目标存在文字时提示未开启at查询问题
+- 
 2023.03.23 相关更新
 - 适配主项目变更（oicq1.x-icqq）
 

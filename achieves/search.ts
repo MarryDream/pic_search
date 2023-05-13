@@ -61,7 +61,7 @@ export async function main( { sendMessage, messageData, logger, client }: InputP
 			if ( data.length === 0 ) {
 				throw new Error( "未获取到引用消息" );
 			}
-			recReplyImage.push( ...<ImageElem[]>data.map( ( msg: GroupMessage | PrivateMessage ) => msg.message[0] ).filter( m => m.type === "image" ) );
+			recReplyImage.push( ...<ImageElem[]>data[0].message.filter( m => m.type === "image" ) );
 		} catch ( error ) {
 			replyError = true;
 			logger.error( ErrorMsg.REPLY_ERROR + error?.message || "" );
