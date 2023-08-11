@@ -1,11 +1,9 @@
-import SearchConfig from "#pic_search/module/config";
-
 export default class SearchKey {
 	private keys: string[];
 	private index: number;
 	
-	constructor( config: SearchConfig ) {
-		this.keys = config.searchKeys;
+	constructor( searchKeys: string[] ) {
+		this.keys = searchKeys;
 		this.index = 0;
 	}
 	
@@ -13,7 +11,7 @@ export default class SearchKey {
 		this.index = this.index === this.keys.length - 1 ? 0 : this.index + 1;
 	}
 	
-	public setKey(keys: string[]) {
+	public setKey( keys: string[] ) {
 		this.keys = keys
 	}
 	

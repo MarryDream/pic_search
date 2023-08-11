@@ -1,10 +1,9 @@
-import { InputParameter } from "@modules/command";
-import { sauceNAOSearch } from "#pic_search/utils/api";
-import { checkSauceNAOSearchStatus } from "#pic_search/types/check";
-import { keys, config } from "#pic_search/init";
-import { ISauceNAOResponseError, ISauceNAOResponseSuccess, ISauceNAOResult } from "#pic_search/types/SauceNAO";
-import { Quotable, AtElem, ImageElem, Message, Group, User, GroupMessage, PrivateMessage } from "icqq";
-import { isGroupMessage } from "@modules/message";
+import { defineDirective } from "@/modules/command";
+import { sauceNAOSearch } from "#/pic_search/utils/api";
+import { checkSauceNAOSearchStatus } from "#/pic_search/types/check";
+import { keys, config } from "#/pic_search/init";
+import { ISauceNAOResponseError, ISauceNAOResponseSuccess, ISauceNAOResult } from "#/pic_search/types/SauceNAO";
+import { AtRecepElem, ImageRecepElem, ReplayRecepElem } from "@/modules/lib";
 
 enum ErrorMsg {
 	CANNOT_AT = "未开启 at 查询头像功能",
@@ -39,47 +38,40 @@ const keyToDiy = {
 	service_name: "发布地址"
 }
 
-export async function main( { sendMessage, messageData, logger, client }: InputParameter ): Promise<void> {
-	const { message, source } = messageData;
+export default defineDirective( "order", async ( { sendMessage, messageData, logger, client } ) => {
+	const { message } = messageData;
 	
-	const hasReply: boolean = !!source;
-	const recReplyImage: ImageElem[] = [];
+	const replyMsg = <ReplayRecepElem | undefined>message.find( m => m.type === "reply" );
+	const recReplyImage: ImageRecepElem[] = [];
 	
 	let replyError: boolean = false; // 获取回复消息是否出错
 	/* 尝试获取回复信息中的图片 */
-	if ( source ) {
+	if ( replyMsg ) {
 		try {
-			let data: GroupMessage[] | PrivateMessage[] = [];
-			if ( isGroupMessage( messageData ) ) {
-				const group: Group = client.pickGroup( messageData.group_id );
-				data = await group.getChatHistory( source.seq, 1 );
-			} else {
-				const user: User = client.pickUser( source.user_id );
-				data = await user.getChatHistory( source.time, 1 );
+			const { retcode, data, wording } = await client.getMessage( Number.parseInt( replyMsg.data.id ) );
+			if ( retcode !== 0 ) {
+				throw new Error( wording );
 			}
-			
-			if ( data.length === 0 ) {
-				throw new Error( "未获取到引用消息" );
-			}
-			recReplyImage.push( ...<ImageElem[]>data[0].message.filter( m => m.type === "image" ) );
-		} catch ( error ) {
+			const recepImages = <ImageRecepElem[]>data.message.filter( m => m.type === "image" );
+			recReplyImage.push( ...recepImages );
+		} catch ( error: any ) {
 			replyError = true;
 			logger.error( ErrorMsg.REPLY_ERROR + error?.message || "" );
 		}
 	}
 	
-	const recImage = <ImageElem[]>message.filter( m => m.type === "image" );
-	const recAt = <AtElem[]>message.filter( m => m.type === "at" );
+	const recImage = <ImageRecepElem[]>message.filter( m => m.type === "image" );
+	const recAt = <AtRecepElem[]>message.filter( m => m.type === "at" );
 	
-	const recMessage: Array<ImageElem | AtElem> = [ ...recReplyImage, ...recImage ];
+	const recMessage: Array<ImageRecepElem | AtRecepElem> = [ ...recReplyImage, ...recImage ];
 	
 	/* 当开启@搜头像且不存在回复消息时结果中包含头像，否则不包含 */
-	if ( config.at && !hasReply ) {
+	if ( config.at && !replyMsg ) {
 		recMessage.push( ...recAt );
 	}
 	
 	if ( !recMessage.length ) {
-		if ( config.at && !hasReply ) {
+		if ( config.at && !replyMsg ) {
 			await sendMessage( ErrorMsg.EMPTY_AT );
 		} else {
 			await sendMessage( recAt.length ? ErrorMsg.CANNOT_AT : ErrorMsg.EMPTY );
@@ -103,9 +95,9 @@ export async function main( { sendMessage, messageData, logger, client }: InputP
 		config.multiple && rowMessageArr.push( `---第${ imgIndex }张搜索结果---` );
 		let url: string;
 		if ( rec.type === "image" ) {
-			url = <string>rec.url;
+			url = <string>rec.data.url;
 		} else {
-			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ ( <AtElem>rec ).qq }`;
+			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ rec.data.qq }`;
 		}
 		
 		let api_key = keys.getKey();
@@ -173,4 +165,4 @@ export async function main( { sendMessage, messageData, logger, client }: InputP
 		}
 	}
 	await sendMessage( rowMessageArr.join( "\n" ) );
-}
+} );

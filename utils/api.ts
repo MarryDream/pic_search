@@ -1,27 +1,21 @@
-import fetch from "node-fetch";
-import { formatGetURL, IParams } from "./utils";
-import { ISauceNAOResponseSuccess, ISauceNAOResponseError } from "#pic_search/types/SauceNAO";
+import type { ISauceNAOResponseSuccess, ISauceNAOResponseError } from "#/pic_search/types/SauceNAO";
+import { register } from "@/utils/request";
 
-const _api = {
+const apis = {
 	sauce_nao_search: "https://saucenao.com/search.php"
 }
 
-export function sauceNAOSearch( params: IParams | undefined ): Promise<ISauceNAOResponseSuccess | ISauceNAOResponseError> {
-	const url = formatGetURL( _api.sauce_nao_search, {
+const { request: $https } = register( {
+	timeout: 60000,
+	responseType: "json",
+}, apis );
+
+export async function sauceNAOSearch( params?: Record<string, string | number> ): Promise<ISauceNAOResponseSuccess | ISauceNAOResponseError> {
+	const { data } = await $https.sauce_nao_search.get( {
 		db: 999,
 		output_type: 2,
 		numres: 3,
 		...params
 	} );
-	return new Promise( ( resolve, reject ) => {
-		fetch( url ).then( async ( result: Response ) => {
-			if ( result.ok ) {
-				const res = await result.json();
-				resolve( res );
-			}
-			reject( new Error( "ERROR" ) );
-		} ).catch( ( err: Error ) => {
-			reject( err );
-		} )
-	} )
+	return data;
 }

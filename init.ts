@@ -1,12 +1,18 @@
-import bot from "ROOT";
-import { BOT } from "@modules/bot";
-import SearchConfig from "#pic_search/module/config";
-import SearchKey from "#pic_search/module/keys";
-import { PluginSetting } from "@modules/plugin";
-import { OrderConfig } from "@modules/command";
-import FileManagement from "@modules/file";
+import SearchKey from "#/pic_search/module/keys";
+import { OrderConfig } from "@/modules/command";
+import { definePlugin } from "@/modules/plugin";
+import { ExportConfig } from "@/modules/config";
 
-export let config: SearchConfig
+const initConfig = {
+	tip: "搜图插件配置文件，searchKeys必填，可填写多个",
+	at: true,
+	multiple: true,
+	similarity: 70,
+	searchKeys: [ "searchKeyA", "searchKeyB" ],
+	aliases: [ "搜图" ]
+}
+
+export let config: ExportConfig<typeof initConfig>;
 export let keys: SearchKey
 
 const search: OrderConfig = {
@@ -21,51 +27,21 @@ const search: OrderConfig = {
 		"支持回复图片进行查询，当为回复消息时，at搜头像不可用"
 };
 
-
-function loadConfig( file: FileManagement ): SearchConfig {
-	const initConfig = SearchConfig.init;
-	
-	const path = file.getFilePath( SearchConfig.configName + ".yml" );
-	const isExit = file.isExist( path );
-	
-	if ( !isExit ) {
-		file.createYAML( SearchConfig.configName, initConfig );
-		return new SearchConfig( initConfig );
+export default definePlugin( {
+	name: "搜图",
+	cfgList: [ search ],
+	repo: {
+		owner: "MarryDream",
+		repoName: "pic_search",
+		ref: "main"
+	},
+	async mounted( params ) {
+		config = params.configRegister( "main", initConfig );
+		config.on( "refresh", newCfg => {
+			params.setAlias( config.aliases );
+		} );
+		
+		params.setAlias( config.aliases );
+		keys = new SearchKey( config.searchKeys );
 	}
-	
-	const config = file.loadYAML( SearchConfig.configName );
-	
-	const keysNum = ( o: any ) => Object.keys( o ).length;
-	
-	/* 自动填充当前配置缺少的字段 */
-	if ( keysNum( initConfig ) !== keysNum( config ) ) {
-		const c: any = {};
-		for ( const cKey of Object.keys( initConfig ) ) {
-			c[cKey] = config[cKey] || initConfig[cKey];
-		}
-		file.writeYAML( SearchConfig.configName, c );
-		return new SearchConfig( c );
-	}
-	
-	return new SearchConfig( config );
-}
-
-
-export async function init( { file }: BOT ): Promise<PluginSetting> {
-	
-	config = loadConfig( file );
-	keys = new SearchKey( config );
-	
-	bot.refresh.registerRefreshableFile( SearchConfig.configName, config );
-	
-	return {
-		pluginName: "pic_search",
-		aliases: config.aliases,
-		cfgList: [ search ],
-		repo: {
-			owner: "MarryDream",
-			repoName: "pic_search",
-			ref: "master"
-		}
-	};
-}
+} );
