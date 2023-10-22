@@ -1,12 +1,15 @@
 # pic_search
 
 本项目为 [Adachi-BOT][1] 的衍生插件，基于 [SauceNAO][2] 接口实现的qq机器人搜图功能。
-This project is a submodule for Adachi-BOT, it offers the search by image function as a QQ chat bot through SauceNAO.
+This project is a submodule for Adachi-BOT, it offers the search by image function as a chat bot through SauceNAO.
 
 ## 更新日志
+2023.10.23 相关更新
+- 适配主项目变更（v2-v3）
+
 2023.05.13 相关更新
 - 修复引用回复目标存在文字时提示未开启at查询问题
-- 
+
 2023.03.23 相关更新
 - 适配主项目变更（oicq1.x-icqq）
 
