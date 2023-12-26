@@ -2,6 +2,7 @@ import SearchKey from "#/pic_search/module/keys";
 import { OrderConfig } from "@/modules/command";
 import { definePlugin } from "@/modules/plugin";
 import { ExportConfig } from "@/modules/config";
+import {isEqualObject} from "@/utils/object";
 
 const initConfig = {
 	tip: "搜图插件配置文件，searchKeys必填，可填写多个",
@@ -37,10 +38,17 @@ export default definePlugin( {
 	},
 	async mounted( params ) {
 		config = params.configRegister( "main", initConfig );
-		config.on( "refresh", newCfg => {
-			params.setAlias( config.aliases );
+		config.on( "refresh", ( newCfg, oldCfg ) => {
+			if ( !isEqualObject( newCfg.aliases, oldCfg.aliases ) ) {
+				console.log( "aliases 变了" )
+				params.setAlias( config.aliases );
+			}
+			if ( !isEqualObject( newCfg.searchKeys, oldCfg.searchKeys ) ) {
+				console.log( "searchKeys 变了" )
+				keys = new SearchKey( config.searchKeys );
+			}
 		} );
-		
+
 		params.setAlias( config.aliases );
 		keys = new SearchKey( config.searchKeys );
 	}

@@ -3,7 +3,7 @@ import { sauceNAOSearch } from "#/pic_search/utils/api";
 import { checkSauceNAOSearchStatus } from "#/pic_search/types/check";
 import { keys, config } from "#/pic_search/init";
 import { ISauceNAOResponseError, ISauceNAOResponseSuccess, ISauceNAOResult } from "#/pic_search/types/SauceNAO";
-import { AtRecepElem, ImageRecepElem, ReplayRecepElem } from "@/modules/lib";
+import { AtRecepElem, ImageRecepElem, ReplyRecepElem } from "@/modules/lib";
 
 enum ErrorMsg {
 	CANNOT_AT = "未开启 at 查询头像功能",
@@ -40,10 +40,9 @@ const keyToDiy = {
 
 export default defineDirective( "order", async ( { sendMessage, messageData, logger, client } ) => {
 	const { message } = messageData;
-	
-	const replyMsg = <ReplayRecepElem | undefined>message.find( m => m.type === "reply" );
+	const replyMsg = <ReplyRecepElem | undefined>message.find( m => m.type === "reply" );
 	const recReplyImage: ImageRecepElem[] = [];
-	
+
 	let replyError: boolean = false; // 获取回复消息是否出错
 	/* 尝试获取回复信息中的图片 */
 	if ( replyMsg ) {
@@ -59,17 +58,17 @@ export default defineDirective( "order", async ( { sendMessage, messageData, log
 			logger.error( ErrorMsg.REPLY_ERROR + error?.message || "" );
 		}
 	}
-	
+
 	const recImage = <ImageRecepElem[]>message.filter( m => m.type === "image" );
 	const recAt = <AtRecepElem[]>message.filter( m => m.type === "at" );
-	
+
 	const recMessage: Array<ImageRecepElem | AtRecepElem> = [ ...recReplyImage, ...recImage ];
-	
+
 	/* 当开启@搜头像且不存在回复消息时结果中包含头像，否则不包含 */
 	if ( config.at && !replyMsg ) {
 		recMessage.push( ...recAt );
 	}
-	
+
 	if ( !recMessage.length ) {
 		if ( config.at && !replyMsg ) {
 			await sendMessage( ErrorMsg.EMPTY_AT );
@@ -78,18 +77,18 @@ export default defineDirective( "order", async ( { sendMessage, messageData, log
 		}
 		return;
 	}
-	
+
 	if ( recMessage.length > 3 ) {
 		await sendMessage( ErrorMsg.OVERFLOW );
 		return;
 	}
-	
+
 	const rowMessageArr: string[] = [];
-	
+
 	!config.multiple && ( recMessage.length = 1 );
-	
+
 	let imgIndex = 0;
-	
+
 	for ( const rec of recMessage ) {
 		imgIndex++
 		config.multiple && rowMessageArr.push( `---第${ imgIndex }张搜索结果---` );
@@ -99,9 +98,9 @@ export default defineDirective( "order", async ( { sendMessage, messageData, log
 		} else {
 			url = `https://q1.qlogo.cn/g?b=qq&s=640&nk=${ rec.data.qq }`;
 		}
-		
+
 		let api_key = keys.getKey();
-		
+
 		let result: ISauceNAOResponseSuccess | ISauceNAOResponseError;
 		try {
 			result = await sauceNAOSearch( { api_key, url } );
@@ -110,7 +109,7 @@ export default defineDirective( "order", async ( { sendMessage, messageData, log
 			rowMessageArr.push( ErrorMsg.ERROR_MESSAGE );
 			continue;
 		}
-		
+
 		if ( !checkSauceNAOSearchStatus( result ) ) {
 			rowMessageArr.push( result.header.message || ErrorMsg.ERROR_MESSAGE );
 			/* 当前keys无效时，切换 */
@@ -119,46 +118,46 @@ export default defineDirective( "order", async ( { sendMessage, messageData, log
 			}
 			continue;
 		}
-		
+
 		/* keys次数用完时，切换 */
 		if ( result.header.long_remaining === 0 ) {
 			keys.increaseIndex();
 		}
-		
+
 		/* 当引用消息获取出错时，提示 */
 		if ( replyError ) {
 			rowMessageArr.push( ErrorMsg.REPLY_ERROR_RESULTS );
 		}
-		
+
 		/* 当状态为3时，查询结果不完全 */
 		if ( result.header.status === 3 ) {
 			rowMessageArr.push( ErrorMsg.INCOMPLETE_RESULTS );
 		}
-		
+
 		/* 获取前两个相似度匹配的数据 */
 		const gottenResult = result.results.filter( r => Number( r.header.similarity ) >= config.similarity ).slice( 0, 2 );
-		
+
 		if ( !gottenResult.length ) {
 			rowMessageArr.push( ErrorMsg.NOT_FOUNT );
 			continue;
 		}
-		
+
 		const sendMessageObj: { [field: string]: string } = {};
-		
+
 		/* 生成返回数据对象方法 */
 		const setMessageData = ( data: ISauceNAOResult["data"], key: string, diyKey: string ) => {
 			if ( data[key] && !sendMessageObj[diyKey] ) {
 				sendMessageObj[diyKey] = data[key];
 			}
 		}
-		
+
 		/* 生成返回数据对象 */
 		for ( const { data } of gottenResult ) {
 			for ( const k in keyToDiy ) {
 				setMessageData( data, k, keyToDiy[k] );
 			}
 		}
-		
+
 		/* 根据数据对象生成返回数据 */
 		for ( const sKey in sendMessageObj ) {
 			rowMessageArr.push( `${ sKey }：${ sendMessageObj[sKey] }` );
